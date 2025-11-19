@@ -1,8 +1,10 @@
 #include <iostream>
 #include "icmplib.h"
 #include <fstream>
+#include <iomanip>
 
 int pingRepeat(std::string address, std::string &resolved);
+std::string getNowTime();
 
 int pingRepeat(std::string address, std::string &resolved, std::ofstream &fileOut)
 {
@@ -11,10 +13,12 @@ int pingRepeat(std::string address, std::string &resolved, std::ofstream &fileOu
     std::cout << "Pinging " << (resolved.empty() ? address : resolved + " [" + address + "]")
               << " with " << ICMPLIB_PING_DATA_SIZE << " bytes of data:" << std::endl;
     
+    // Capture the time when the ping is sent
     auto time_sent = std::chrono::system_clock::now();
+
     auto result = icmplib::Ping(address, ICMPLIB_TIMEOUT_1S);
     auto time_received = std::chrono::system_clock::now();
-
+    
     switch (result.response) {
         case icmplib::PingResponseType::Failure:
         std::cout << "Network error." << std::endl;
@@ -36,7 +40,9 @@ int pingRepeat(std::string address, std::string &resolved, std::ofstream &fileOu
                 if (result.address.GetType() != icmplib::IPAddress::Type::IPv6) {
                     std::cout << " TTL=" << static_cast<unsigned>(result.ttl);
                 }
-                fileOut << address << "," << "Success" << "," << result.delay << "," << static_cast<unsigned>(result.code) << "," << static_cast<unsigned>(result.ttl) << "," << std::chrono::duration_cast<std::chrono::milliseconds>(time_sent.time_since_epoch()).count() << "," << std::chrono::duration_cast<std::chrono::milliseconds>(time_received.time_since_epoch()).count() << "\n";
+                fileOut << address << "," << "Success" << "," << result.delay << "," << static_cast<unsigned>(result.code) << "," << static_cast<unsigned>(result.ttl) << "," << time_sent.time_since_epoch().count() << "," << time_received.time_since_epoch().count() << "\n";
+                // Log success with details and sent and received time in datetime format
+                // fileOut
                 break;
             
             case icmplib::PingResponseType::Unreachable:
@@ -60,6 +66,16 @@ int pingRepeat(std::string address, std::string &resolved, std::ofstream &fileOu
     }
     return ret;
 
+}
+
+std::string getNowTime()
+{
+    auto t = std::time(nullptr);
+    auto tm = *std::localtime(&t);
+
+    std::ostringstream oss;
+    oss << std::put_time(&tm, "%d-%m-%Y %H-%M-%S");
+    return oss.str();
 }
 
 int main(int argc, char *argv[])
