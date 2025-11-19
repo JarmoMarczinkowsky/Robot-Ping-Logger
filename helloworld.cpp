@@ -11,8 +11,9 @@ int pingRepeat(std::string address, std::string &resolved, std::ofstream &fileOu
     std::cout << "Pinging " << (resolved.empty() ? address : resolved + " [" + address + "]")
               << " with " << ICMPLIB_PING_DATA_SIZE << " bytes of data:" << std::endl;
     
+    auto time_sent = std::chrono::system_clock::now();
     auto result = icmplib::Ping(address, ICMPLIB_TIMEOUT_1S);
-    
+    auto time_received = std::chrono::system_clock::now();
 
     switch (result.response) {
         case icmplib::PingResponseType::Failure:
@@ -35,12 +36,12 @@ int pingRepeat(std::string address, std::string &resolved, std::ofstream &fileOu
                 if (result.address.GetType() != icmplib::IPAddress::Type::IPv6) {
                     std::cout << " TTL=" << static_cast<unsigned>(result.ttl);
                 }
-                fileOut << address << "," << "Success" << "," << result.delay << "," << static_cast<unsigned>(result.code) << "," << static_cast<unsigned>(result.ttl) << "\n";
+                fileOut << address << "," << "Success" << "," << result.delay << "," << static_cast<unsigned>(result.code) << "," << static_cast<unsigned>(result.ttl) << "," << std::chrono::duration_cast<std::chrono::milliseconds>(time_sent.time_since_epoch()).count() << "," << std::chrono::duration_cast<std::chrono::milliseconds>(time_received.time_since_epoch()).count() << "\n";
                 break;
             
             case icmplib::PingResponseType::Unreachable:
                 std::cout << "Destination unreachable.";
-                fileOut << address << "," << "Unreachable" << ",,,\n";
+                fileOut << address << "," << "Unreachable" <<  ",,,\n";
                 break;
             
             case icmplib::PingResponseType::TimeExceeded:
@@ -97,7 +98,7 @@ int main(int argc, char *argv[])
     fileOut.seekp(0, std::ios::end);
     if (fileOut.tellp() == 0)
     {
-        fileOut << "address,response_type,delay_ms,code,ttl\n";
+        fileOut << "address,response_type,delay_ms,code,ttl,time_sent,time_received\n";
     }
     
     for(int i = 0; i < loop_count; ++i)
