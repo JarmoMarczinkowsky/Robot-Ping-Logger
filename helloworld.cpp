@@ -66,9 +66,11 @@ int main(int argc, char *argv[])
     //default to Google's public DNS server
     // can be overridden by command line argument
     std::string address = "8.8.8.8", resolved;
+    int loop_count = 4;
     if (argc > 1) 
     { 
         address = argv[1]; 
+        if (argc > 2) { loop_count = std::stoi(argv[2]); }
     }
     try 
     {
@@ -98,7 +100,7 @@ int main(int argc, char *argv[])
         fileOut << "address,response_type,delay_ms,code,ttl\n";
     }
     
-    for(int i = 0; i < 4; ++i)
+    for(int i = 0; i < loop_count; ++i)
     {
         ret = pingRepeat(address, resolved, fileOut);
     }
