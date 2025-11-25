@@ -6,6 +6,7 @@
 int pingRepeat(std::string address, std::string &resolved);
 std::string getNowTime();
 
+// Function to perform a single ping and log the result
 int pingRepeat(std::string address, std::string &resolved, std::ofstream &fileOut)
 {
     int ret = EXIT_SUCCESS;
@@ -16,6 +17,7 @@ int pingRepeat(std::string address, std::string &resolved, std::ofstream &fileOu
     // Capture the time when the ping is sent
     auto time_sent = std::chrono::system_clock::now();
 
+    // Perform the ping
     auto result = icmplib::Ping(address, ICMPLIB_TIMEOUT_1S);
     auto time_received = std::chrono::system_clock::now();
     
@@ -40,9 +42,9 @@ int pingRepeat(std::string address, std::string &resolved, std::ofstream &fileOu
                 if (result.address.GetType() != icmplib::IPAddress::Type::IPv6) {
                     std::cout << " TTL=" << static_cast<unsigned>(result.ttl);
                 }
+                
+                // Log success of ping with details of ping, sent time and received time in epoch format
                 fileOut << address << "," << "Success" << "," << result.delay << "," << static_cast<unsigned>(result.code) << "," << static_cast<unsigned>(result.ttl) << "," << time_sent.time_since_epoch().count() << "," << time_received.time_since_epoch().count() << "\n";
-                // Log success with details and sent and received time in datetime format
-                // fileOut
                 break;
             
             case icmplib::PingResponseType::Unreachable:
@@ -68,6 +70,7 @@ int pingRepeat(std::string address, std::string &resolved, std::ofstream &fileOu
 
 }
 
+// Function to get the current time as a formatted string (not used now, but kept for reference)
 std::string getNowTime()
 {
     auto t = std::time(nullptr);
@@ -78,10 +81,18 @@ std::string getNowTime()
     return oss.str();
 }
 
+
+/// @brief 
+///Default to Google's public DNS server.
+///Can be overridden by command line argument, 
+///otherwise, second argument can specify number of pings.
+///Usage: ./ping_logger [address] [count]
+/// @param argc 
+/// @param argv 
+/// @return 
 int main(int argc, char *argv[])
 {
-    //default to Google's public DNS server
-    // can be overridden by command line argument
+
     std::string address = "8.8.8.8", resolved;
     int loop_count = 4;
     if (argc > 1) 
@@ -103,6 +114,7 @@ int main(int argc, char *argv[])
 
     int ret = EXIT_SUCCESS;
 
+    // Open CSV file for logging ping results
     std::ofstream fileOut;
     fileOut.open("ping_log.csv", std::ios::out | std::ios::app);
     if (!fileOut.is_open()) {
@@ -117,11 +129,13 @@ int main(int argc, char *argv[])
         fileOut << "address,response_type,delay_ms,code,ttl,time_sent,time_received\n";
     }
     
+    // Loop given amount to send multiple ping requests after each other
     for(int i = 0; i < loop_count; ++i)
     {
         ret = pingRepeat(address, resolved, fileOut);
     }
 
+    // Close the CSV file after logging is done
     fileOut.close();
     return ret;
 }
