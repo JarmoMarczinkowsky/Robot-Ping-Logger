@@ -2,7 +2,7 @@ Bij deze code wordt gebruik gemaakt van de publiekelijk toegankelijke ICMPLIB li
 <br>Deze library voegt de mogelijkheid toe om via C++ code een PING-commando naar een adres te sturen en het resultaat op te vangen.
 
 <h2>Applicatie starten:</h2>
-Start bestand: [ping_adress.cpp](https://github.com/JarmoMarczinkowsky/Robot-Ping-Logger/blob/main/ping_adress.cpp)
+Start bestand: https://github.com/JarmoMarczinkowsky/Robot-Ping-Logger/blob/main/ping_adress.cpp
 Start de applicatie door in Linux met 'CD path/to/file' naar de folder te gaan in de terminal.
 Run daarna de code met 
 ./ping_logger [adres] [aantal]
