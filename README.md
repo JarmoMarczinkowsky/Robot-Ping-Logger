@@ -3,6 +3,7 @@ Bij deze code wordt gebruik gemaakt van de publiekelijk toegankelijke ICMPLIB li
 
 <h2>Applicatie starten:</h2>
 Start bestand: https://github.com/JarmoMarczinkowsky/Robot-Ping-Logger/blob/main/ping_adress.cpp
+
 Start de applicatie door in Linux met 'CD path/to/file' naar de folder te gaan in de terminal.
 Run daarna de code met 
 ./ping_logger [adres] [aantal]
